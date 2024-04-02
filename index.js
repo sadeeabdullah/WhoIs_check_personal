@@ -43,7 +43,10 @@ document.addEventListener('DOMContentLoaded',async function () {
         const infoContainer5 = document.getElementById("raw_data");
         // Clear previous content
         infoContainer.innerHTML = '';
-
+        infoContainer2.innerHTML = '';
+        infoContainer3.innerHTML = '';
+        infoContainer4.innerHTML = '';
+        infoContainer5.innerHTML = '';
         // clear the error section
         const errorsec = document.getElementById("error")
         errorsec.innerHTML='';
@@ -363,16 +366,26 @@ document.addEventListener('DOMContentLoaded',async function () {
             await hideLoader();
 
             // Handle errors
-            const msg = document.createElement("p");
-            msg.classList.add("error");
-            msg.textContent="This domain has available for sale"
 
-            const errorMessage = document.createElement("div")
-            errorMessage.appendChild(msg)
+            const errorDiv =document.createElement("div");
+            errorDiv.classList.add("errorDiv")
 
-            // append the error message on the info container
-            const errorSection = document.getElementById("error")
-            errorSection.appendChild(msg)
+            const errorMessage= document.createElement("p");
+            errorMessage.classList.add("errorMessage");
+            errorMessage.textContent="This domain has available for sale"
+
+            const getItNowBtn= document.createElement("button");
+            getItNowBtn.classList.add("get_btn");
+            getItNowBtn.textContent="Get It Now"
+
+            const errorSection = document.getElementById("error");
+            
+             // append the error message and get it now button on the error div
+            errorDiv.appendChild(errorMessage)
+            errorDiv.appendChild(getItNowBtn)
+
+            // append the error div to the error section
+            errorSection.appendChild(errorDiv)
         }
       
     }
