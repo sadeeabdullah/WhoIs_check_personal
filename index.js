@@ -55,12 +55,14 @@ document.addEventListener('DOMContentLoaded',async function () {
         
 
         const domainInput = document.getElementById("searchQueryInput").value;
-        console.log(domainInput);
-        if (!domainInput) {
-            alert("please write a proper domain name with extension");
+        // console.log(domainInput);
+        if (!domainInput || domainInput.indexOf('.') === -1) {
+            alert("Please enter a valid domain name with its extension (e.g., example.com) including a dot (.)");
             hideLoader();
             return;
         }
+        
+        
 
         try {
             const [contacts,  registrant,registrar, whoisData,rawText] = await Promise.all([
@@ -75,26 +77,42 @@ document.addEventListener('DOMContentLoaded',async function () {
 
             await hideLoader()
 
+            // function for format date
 
-              console.log(contacts[0])
-              console.log(contacts[1])
+            function formatDate(dateString) {
+                // Create a new Date object from the input string
+                var dateObject = new Date(dateString);
+            
+                // Extract year, month, and day from the date object
+                var year = dateObject.getFullYear();
+                var month = ("0" + (dateObject.getMonth() + 1)).slice(-2); // Adding 1 to month since it's zero-indexed
+                var day = ("0" + dateObject.getDate()).slice(-2);
+            
+                // Formatted date string in the desired format
+                var formattedDate = year + "-" + month + "-" + day;
+            
+                return formattedDate;
+            }
+
+            // function for add line break on name servers
+            function addLineBreakAfterFirstValue(inputString) {
+                // Split the input string by space
+                var values = inputString.split(" ");
+            
+                // Insert a line break after the first value
+                var formattedString = values.slice(0, 1).join(" ") + "<br>" + values.slice(1).join(" ");
+            
+                return formattedString;
+            }
+            
            
-            contacts.forEach(contact => {
-                // Check if the element is not null
-                if (contact !== null) {
-                  // Access properties for each non-null contact object
-                  console.log('ID:', contact.id);
-                  console.log('Email:', contact.email);
-                  // Other properties
-                } else {
-                  // Handle the case where the element is null
-                  console.log('Contact is null');
-                }
-              });
+           
+
+           const nameServers=whoisData.nservs.join(" ")
+          
+
 
             // Process data and update UI as needed
-
-
           
             //   creating data table to show data in a table
             const table1=document.createElement("table");
@@ -113,11 +131,11 @@ document.addEventListener('DOMContentLoaded',async function () {
             {label:"Domain Name : ",value:whoisData.name},
             {label:"Registrar : ",value:registrar.name},
             {label:"Service Provider : ",value:registrar.reseller},
-            {label:"Registered On : ",value:whoisData.crdate},
-            {label:"Expire Date  :",value:whoisData.exdate},
-            {label:"Updated On  :",value:whoisData.update},
+            {label:"Registered On : ",value:formatDate(whoisData.crdate)},
+            {label:"Expire Date  :",value:formatDate(whoisData.exdate)},
+            {label:"Updated On  :",value:formatDate(whoisData.update)},
             {label:"Status  :",value:whoisData.status},
-            {label:"Name Servers  :",value:whoisData.nservs},
+            {label:"Name Servers  :",value:addLineBreakAfterFirstValue(nameServers)},
             ]
 
             
@@ -134,7 +152,7 @@ document.addEventListener('DOMContentLoaded',async function () {
 
                 // create cell for value
                 const valueCell =  document.createElement("td");
-                valueCell.textContent = data.value;
+                valueCell.innerHTML = data.value;
                 row.appendChild(valueCell);
 
                 // append the row to the table body or tbody
@@ -360,29 +378,27 @@ document.addEventListener('DOMContentLoaded',async function () {
 
 
         } catch (error) {
-            console.error('There was a problem with the fetch operation:', error);
 
             // hiding the loader
             await hideLoader();
 
             // Handle errors
+            let dynamicDomain =domainInput;
+            let dynamicLink = `https://my.satisfyhost.com/cart.php?a=add&domain=register&currency=2&query=${dynamicDomain}`
+            console.log(dynamicLink)
 
             const errorDiv =document.createElement("div");
-            errorDiv.classList.add("errorDiv")
-
-            const errorMessage= document.createElement("p");
-            errorMessage.classList.add("errorMessage");
-            errorMessage.textContent="This domain has available for sale"
-
-            const getItNowBtn= document.createElement("button");
-            getItNowBtn.classList.add("get_btn");
-            getItNowBtn.textContent="Get It Now"
+            errorDiv.classList.add("err_parent_div")
+            errorDiv.innerHTML=
+                 `
+                <p>This domain is available to purchase</p>
+                <div class="btn_div"><button class="get_btn" onclick="window.location.href='${dynamicLink}'">GRAB NOW</button></div>
+                `;
+            
 
             const errorSection = document.getElementById("error");
             
-             // append the error message and get it now button on the error div
-            errorDiv.appendChild(errorMessage)
-            errorDiv.appendChild(getItNowBtn)
+           
 
             // append the error div to the error section
             errorSection.appendChild(errorDiv)
