@@ -62,7 +62,17 @@ document.addEventListener('DOMContentLoaded',async function () {
             return;
         }
         
-        
+         // Check if domainInput contains ".bd"
+    if (domainInput && domainInput.includes(".bd")) {
+        alert("You entered a .bd domain. Please note that this service may not support .bd domains.");
+        hideLoader();
+        return;
+    }
+    if (domainInput && domainInput.includes(".co.uk")) {
+        alert("You entered a .co.uk domain. Please note that this service may available in this moment");
+        hideLoader();
+        return;
+    }
 
         try {
             const [contacts,  registrant,registrar, whoisData,rawText] = await Promise.all([
@@ -73,6 +83,12 @@ document.addEventListener('DOMContentLoaded',async function () {
                 fetchDataRaw(`https://dev.kwayisi.org/apis/whois/${domainInput}/rawtext`)
             ]);
 
+
+            // console.log(contacts)
+            console.log(registrant)
+            // console.log(registrar)
+            // console.log(whoisData)
+            // console.log(rawText)
             // hide loader
 
             await hideLoader()
@@ -99,15 +115,38 @@ document.addEventListener('DOMContentLoaded',async function () {
                 // Split the input string by space
                 var values = inputString.split(" ");
             
-                // Insert a line break after the first value
-                var formattedString = values.slice(0, 1).join(" ") + "<br>" + values.slice(1).join(" ");
+                // Check the number of values
+                var numValues = values.length;
+            
+                // Initialize the formatted string
+                var formattedString = "";
+            
+                // Check the number of values and format accordingly
+                switch (numValues) {
+                    case 1:
+                        formattedString = values[0];
+                        break;
+                    case 2:
+                        formattedString = values[0] + "<br>" + values[1];
+                        break;
+                    case 3:
+                        formattedString = values[0] + "<br>" + values[1] + "<br>" + values[2];
+                        break;
+                    case 4:
+                        formattedString = values[0] + "<br>" + values[1] + "<br>" + values[2] + "<br>" + values[3];
+                        break;
+                    default:
+                        // For more than 4 values, join all but the first value with a line break
+                        formattedString = values[0] + "<br>" + values.slice(1).join("<br>");
+                        break;
+                }
             
                 return formattedString;
             }
             
            
            
-
+            const status = whoisData.status.join(" ")
            const nameServers=whoisData.nservs.join(" ")
           
 
@@ -128,13 +167,13 @@ document.addEventListener('DOMContentLoaded',async function () {
             
             // create row for each piece of data
             const rowData1=[
-            {label:"Domain Name : ",value:whoisData.name},
-            {label:"Registrar : ",value:registrar.name},
-            {label:"Service Provider : ",value:registrar.reseller},
+            {label:"Domain Name : ",value:whoisData.name ? whoisData.name : "N/A"},
+            {label:"Registrar : ",value:registrar.name ? registrar.name : "N/A"},
+            {label:"Service Provider : ",value:registrar.reseller ? registrar.reseller : "N/A"},
             {label:"Registered On : ",value:formatDate(whoisData.crdate)},
             {label:"Expire Date  :",value:formatDate(whoisData.exdate)},
             {label:"Updated On  :",value:formatDate(whoisData.update)},
-            {label:"Status  :",value:whoisData.status},
+            {label:"Status  :",value:addLineBreakAfterFirstValue(status)},
             {label:"Name Servers  :",value:addLineBreakAfterFirstValue(nameServers)},
             ]
 
@@ -189,15 +228,15 @@ document.addEventListener('DOMContentLoaded',async function () {
              
              // create row for each piece of data
              const rowData2=[
-             {label:"Name : ",value:registrant.name },
-             {label:"Organization : ",value:registrant.org },
-             {label:"Street : ",value:registrant.address.street},
-             {label:"City : ",value:registrant.address.city},
-             {label:"State  :",value:registrant.address.region},
-             {label:"Postal Code  :",value:registrant.address.zip},
-             {label:"Country  :",value:registrant.address.country},
-             {label:"Phones  :",value:registrant.phone.number},
-             {label:"Email  :",value:registrant.email},
+             {label:"Name : ",value:registrant.name? registrant.name : "N/A" },
+             {label:"Organization : ",value:registrant.org ? registrant.org : "N/A"},
+             {label:"Street : ",value:registrant.address? registrant.address.stress : "N/A"},
+             {label:"City : ",value:registrant.address ? registrant.address.city : "N/A"},
+             {label:"State  :",value:registrant.addressn ? registrant.address.region : "N/A"},
+             {label:"Postal Code  :",value:registrant.address ? registrant.address.zip : "N/A"},
+             {label:"Country  :",value:registrant.address? registrant.address.country : "N/A"},
+             {label:"Phones  :",value:registrant.phone ? registrant.phone.number : "N/A"},
+             {label:"Email  :",value:registrant.email ? registrant.email : "N/A"},
              ]
  
              
@@ -248,15 +287,15 @@ document.addEventListener('DOMContentLoaded',async function () {
              
              // create row for each piece of data
              const rowData3=[
-             {label:"Name : ",value:contacts[0].name},
-             {label:"Organization : ",value:contacts[0].org},
-             {label:"Street : ",value:contacts[0].address.street},
-             {label:"City : ",value:contacts[0].address.city},
-             {label:"State  :",value:contacts[0].address.region},
-             {label:"Postal Code  :",value:contacts[0].address.zip},
-             {label:"Country  :",value:contacts[0].address.country},
-             {label:"Phones  :",value:contacts[0].phone.number},
-             {label:"Email  :",value:contacts[0].email},
+             {label:"Name : ",value:contacts[0].name? contacts[0].name : "N/A"},
+             {label:"Organization : ",value:contacts[0].org ? contacts[0].org : "N/A"},
+             {label:"Street : ",value:contacts[0].address? contacts[0].address.street : "N/A"},
+             {label:"City : ",value:contacts[0].address ? contacts[0].address.city : "N/A"},
+             {label:"State  :",value:contacts[0].address ? contacts[0].address.region : "N/A"},
+             {label:"Postal Code  :",value:contacts[0].address ? contacts[0].address.zip : "N/A"},
+             {label:"Country  :",value:contacts[0].address ? contacts[0].address.country : "N/A"},
+             {label:"Phones  :",value:contacts[0].phone ? contacts[0].phone.number : "N/A"},
+             {label:"Email  :",value:contacts[0].email ? contacts[0].email : "N/A"},
              ]
  
              
@@ -307,15 +346,15 @@ document.addEventListener('DOMContentLoaded',async function () {
              
              // create row for each piece of data
              const rowData4=[
-             {label:"Name : ",value:contacts[1].name},
-             {label:"Organization : ",value:contacts[1].org},
-             {label:"Street : ",value:contacts[1].address.street},
-             {label:"City : ",value:contacts[1].address.city},
-             {label:"State  :",value:contacts[1].address.region},
-             {label:"Postal Code  :",value:contacts[1].address.zip},
-             {label:"Country  :",value:contacts[1].address.country},
-             {label:"Phones  :",value:contacts[1].phone.number},
-             {label:"Email  :",value:contacts[1].email},
+             {label:"Name : ",value:contacts[1].name? contacts[1].name : "N/A"},
+             {label:"Organization : ",value:contacts[1].org ? contacts[1].org : "N/A"},
+             {label:"Street : ",value:contacts[1].address? contacts[1].address.street : "N/A"},
+             {label:"City : ",value:contacts[1].address ? contacts[1].address.city : "N/A"},
+             {label:"State  :",value:contacts[1].address ? contacts[1].address.region : "N/A"},
+             {label:"Postal Code  :",value:contacts[1].address? contacts[1].address.zip : "N/A"},
+             {label:"Country  :",value:contacts[1].address ? contacts[1].address.country : "N/A"},
+             {label:"Phones  :",value:contacts[1].phone ? contacts[1].phone.number : "N/A"},
+             {label:"Email  :",value:contacts[1].email ? contacts[1].email : "N/A"},
              ]
  
              
@@ -357,7 +396,7 @@ document.addEventListener('DOMContentLoaded',async function () {
 
             const rawtext = document.createElement("pre")
             rawtext.classList.add("raw_txt");
-            rawtext.textContent=rawText;
+            rawtext.textContent=rawText ? rawtext : "N/A";
 
             const rawContainer= document.createElement("div")
             rawContainer.classList.add("raw_container")
@@ -421,3 +460,5 @@ document.addEventListener('DOMContentLoaded',async function () {
     });
 
 });
+
+
